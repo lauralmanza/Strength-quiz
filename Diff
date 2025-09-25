@@ -1,1 +1,108 @@
 index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Personality Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f9fa; padding: 20px; text-align: center; }
+    #quiz-container { max-width: 600px; margin: auto; }
+    .question { font-size: 20px; margin-bottom: 20px; font-weight: bold; }
+    .answer-card { display: inline-block; background: white; border-radius: 12px; padding: 15px; margin: 10px; 
+                   box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
+                   width: 150px; }
+    .answer-card:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+    .answer-card img { max-width: 100%; border-radius: 8px; }
+    #result { font-size: 22px; margin-top: 20px; }
+    #progress { height: 10px; background: #ddd; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+    #progress-bar { height: 100%; width: 0; background: #4CAF50; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <div id="progress"><div id="progress-bar"></div></div>
+    <div id="quiz"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What’s your ideal weekend activity?",
+        answers: [
+          { text: "Reading a book", result: { introvert: 70, creative: 30 } },
+          { text: "Going to a party", result: { extrovert: 80, creative: 20 } },
+          { text: "Hiking outdoors", result: { balanced: 60, extrovert: 40 } },
+          { text: "Painting or writing", result: { creative: 90, introvert: 10 } }
+        ]
+      },
+      {
+        question: "Pick a favorite drink:",
+        answers: [
+          { text: "Coffee", result: { creative: 50, introvert: 50 } },
+          { text: "Cocktail", result: { extrovert: 80, balanced: 20 } },
+          { text: "Water", result: { balanced: 70, introvert: 30 } }
+        ]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let scores = { introvert: 0, extrovert: 0, creative: 0, balanced: 0 };
+
+    function showQuestion() {
+      const quizDiv = document.getElementById("quiz");
+      quizDiv.innerHTML = "";
+      const q = questions[currentQuestion];
+      const questionEl = document.createElement("div");
+      questionEl.className = "question";
+      questionEl.textContent = q.question;
+      quizDiv.appendChild(questionEl);
+
+      q.answers.forEach(a => {
+        const card = document.createElement("div");
+        card.className = "answer-card";
+        card.innerHTML = a.text;
+        card.onclick = () => {
+          for (const key in a.result) {
+            scores[key] += a.result[key];
+          }
+          nextQuestion();
+        };
+        quizDiv.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      const quizDiv = document.getElementById("quiz");
+      quizDiv.innerHTML = "";
+      const resultDiv = document.getElementById("result");
+      const total = Object.values(scores).reduce((a, b) => a + b, 0);
+      let resultText = "Your personality breakdown:<br>";
+      for (const key in scores) {
+        const percent = Math.round((scores[key] / total) * 100);
+        resultText += `${key}: ${percent}%<br>`;
+      }
+      resultDiv.innerHTML = resultText;
+      document.getElementById("progress-bar").style.width = "100%";
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion) / questions.length) * 100;
+      document.getElementById("progress-bar").style.width = progress + "%";
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
